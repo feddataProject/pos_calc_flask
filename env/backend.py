@@ -30,18 +30,18 @@ else:
 @app.before_first_request
 def firstRunThrough():
     pi.set_servo_pulsewidth(17, 500)
-    goDown(pi)
     goUp(pi)
+    goDown(pi)
 #After every other subsequent get request, clear the queue and then put new readings into the queue
 @app.after_request
 def after_request_func(response):
     print("Before Clear: ", len(distanceReadings))
     distanceReadings.clear()
-    print("\n\n\n\n\n\n\nClearing queue, queue size is now: ", len(distanceReadings))
-    goDown(pi)
     goUp(pi)
+    goDown(pi)
     return response
-
+#calculate the latitude, longitude from the distance measurement and return a dictionary. This will be what is put into
+#the queue of readings
 def positionCalculator(altitude, lat,long, distCm, azimuth):
     frame = nv.FrameE(a = altitude, f = 0)
     pointA = frame.GeoPoint(latitude = lat, longitude = long, degrees = True)
@@ -53,20 +53,37 @@ def positionCalculator(altitude, lat,long, distCm, azimuth):
         "distance" : distCm
     }
     return returnDict
-def goDown(pi):
-    signal = 500
-    while signal < 2500:
-        pi.set_servo_pulsewidth(17, ceil(signal))
-        distanceReadings.append(lidar.getDistance(0))
-        signal = signal + stepRate
-    time.sleep(.05)
+#send signals to the servo to go from 0 degrees (500 pwm) to 180 degrees (2500 pwm) and take a reading at every
+#degree.
 def goUp(pi):
-    signal = 2500
-    while signal > 500:
+    #start at 0 degrees
+    signal = 500
+    #go until you hit 180 degrees
+    while signal < 2500:
+        #send signal to the servo to go up one more degree
         pi.set_servo_pulsewidth(17, ceil(signal))
-        distanceReadings.append(lidar.getDistance(0))
+        #take a lidar distance reading
+        distanceReadings.append(positionCalculator(6371e3, 80, -90, lidar.getDistance(0), 200))
+        #increment the signal by one
+        signal = signal + stepRate
+    #afterwords take a short breather before going back down. NOTE: MAY TAKE THIS OUT
+    #time.sleep(.05)
+#send signals to the servo to go from 180 degrees (2500 pwm) to 0 degrees (500 pwm) and take a reading at every
+#degree.
+def goDown(pi):
+    #start at 180 degrees
+    signal = 2500
+    #go until you hit 0 degrees
+    while signal > 500:
+        #send signal to the servo to do down by one more degree
+        pi.set_servo_pulsewidth(17, ceil(signal))
+        #take a lidar distance reading
+        distanceReadings.append(positionCalculator(6371e3, 80, -90, lidar.getDistance(0), 200))
+
+        #decrement the signal by one
         signal = signal - stepRate
-    time.sleep(.05)
+    #take a short breather before going back Up NOTE: MAY TAKE THIS OUT
+    #time.sleep(.05)
 #upon a get request return the readings queue
 @app.route('/', methods = ['POST', 'GET'])
 def getReadings():
