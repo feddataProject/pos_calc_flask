@@ -49,7 +49,8 @@ def positionCalculator(altitude, lat,long, distCm, azimuth):
     pointB, azimuth = pointA.displace(distance = distM, azimuth = azimuth, degrees = True)
     returnDict = {
         "latitude": pointB.latitude_deg,
-        "longitude": pointB.longitude_deg
+        "longitude": pointB.longitude_deg,
+        "distance": distCm
     }
     return returnDict
 #upon a get request return the readings queue
