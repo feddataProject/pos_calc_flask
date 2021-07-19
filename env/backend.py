@@ -12,6 +12,7 @@ import numpy
 import nvector as nv
 app = Flask(__name__)
 lidar = Lidar_Lite()
+
 #connect to lidar device
 connected = lidar.connect(1)
 #This list will serve as out readings queue
