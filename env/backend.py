@@ -10,7 +10,6 @@ from lidar_lite import Lidar_Lite
 from flask import Flask, jsonify, copy_current_request_context
 import numpy
 import nvector as nv
-
 app = Flask(__name__)
 lidar = Lidar_Lite()
 #connect to lidar device
