@@ -23,3 +23,8 @@ and then from python shell:
 >>> import nvector as nv
 >>> nv.test('--doctest.modules--')
 ```
+
+## Run the pigpio daemon
+To run pigpio you first need to run the pigpio daemon. Enter the command into your terminal
+
+`sudo pigpiod`
