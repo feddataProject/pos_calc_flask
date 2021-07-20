@@ -52,7 +52,7 @@ def after_request_func(response):
 
 #calculate the latitude, longitude from the distance measurement and return a dictionary. This will be what is put into
 #the queue of readings
-def positionCalculator(altitude, lat,long, distCm, azimuth, bruh):
+def positionCalculator(altitude, lat,long, distCm, azimuth):
     frame = nv.FrameE(a = altitude, f = 0)
     pointA = frame.GeoPoint(latitude = lat, longitude = long, degrees = True)
     distM = distCm / 100
@@ -78,10 +78,12 @@ def goUp(pi):
         #calculations
         alt = float(mavlinkConnection.recv_match(type = 'GLOBAL_POSITION_INT', blocking = True).alt) / 1000
         #take a distance measurement and add it to the distance readings array
-        distanceReadings.append(positionCalculator(alt, 80, -90, lidar.getDistance(0), 200, alt))
+        distanceReadings.append(positionCalculator(alt, 80, -90, lidar.getDistance(0), 200))
         time.sleep(.005)
         #increment the signal by one
         signal = signal + stepRate
+
+
 #send signals to the servo to go from 180 degrees (2500 pwm) to 0 degrees (500 pwm) and take a reading at every
 #degree.
 def goDown(pi):
@@ -95,7 +97,7 @@ def goDown(pi):
         #get the altitude from the flight controller. This will be used for the lat/long calculations
         alt = float(mavlinkConnection.recv_match(type = 'GLOBAL_POSITION_INT', blocking = True).alt) / 1000
         #take a lidar distance reading
-        distanceReadings.append(positionCalculator(alt, 80, -90, lidar.getDistance(0), 200, alt ))
+        distanceReadings.append(positionCalculator(alt, 80, -90, lidar.getDistance(0), 200))
         time.sleep(.005)
         #decrement the signal by one
         signal = signal - stepRate
